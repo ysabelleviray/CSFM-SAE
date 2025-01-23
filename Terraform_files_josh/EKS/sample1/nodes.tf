@@ -80,7 +80,7 @@ resource "aws_eks_node_group" "nodes_general" {
 
   # Type of capacity associated with the EKS Node Group. 
   # Valid values: ON_DEMAND, SPOT
-  capacity_type = "ON_DEMAND"
+  capacity_type = "SPOT"
 
   # Disk size in GiB for worker nodes
   disk_size = 20
