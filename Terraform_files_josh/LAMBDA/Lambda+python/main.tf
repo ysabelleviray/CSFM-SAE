@@ -1,3 +1,19 @@
+# provider "aws" {
+#  region = "us-east-1"
+# }
+
+# module "lambda" {
+#  source        = "terraform-aws-modules/lambda/aws"
+#  version       = "7.8.1"
+#  function_name = "hello"
+#  description   = "My awesome lambda function"
+#  handler       = "hello.lambda_handler"
+#  runtime       = "python3.8"
+
+#  source_path = "./hello.py"
+# }
+
+
 provider "aws" {
   region                   = "us-east-1"
 # access_key = var.aws_access_key
@@ -74,6 +90,32 @@ resource "aws_lambda_function" "terraform_lambda_func" {
  runtime                        = "python3.8"
  depends_on                     = [aws_iam_role_policy_attachment.attach_iam_policy_to_iam_role]
 }
+
+resource "aws_lambda_alias" "demo" {
+ name             = "dev"
+ function_name    = aws_lambda_function.terraform_lambda_func.function_name
+ function_version = aws_lambda_function.terraform_lambda_func.version
+}
+
+resource "aws_api_gateway_rest_api" "demo" {
+ name        = "my_api_gateway"
+ description = "API Gateway for my python function"
+}
+
+resource "aws_lambda_permission" "demo" {
+ statement_id  = "AllowAPIGatewayInvoke"
+ action        = "lambda:InvokeFunction"
+ function_name = aws_lambda_function.terraform_lambda_func.function_name
+ principal     = "apigateway.amazonaws.com"
+}
+
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+ name              = "/aws/lambda/my_lambda_function"
+ retention_in_days = 14
+}
+
+
+
 
 
 output "teraform_aws_role_output" {
