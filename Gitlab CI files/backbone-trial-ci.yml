@@ -1,0 +1,15 @@
+stages:
+  - trigger
+
+#Create template for traceable environment
+.traceable-xast-template: .traceable-xast-template
+  variables:
+    TRACEABLE_ENVIRONMENT: "test-cluster-v5-29-uat"
+
+#Create trigger job and pass the template
+trigger-job:
+  extends: .traceable-xast-template
+  stage: trigger
+  trigger:
+    project: 'security-engineering/security-tools/traceable/api-security-testing'
+    strategy: depend
