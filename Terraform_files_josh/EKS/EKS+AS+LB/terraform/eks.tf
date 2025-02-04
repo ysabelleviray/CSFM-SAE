@@ -7,7 +7,23 @@ module "eks" {
 
     cluster_endpoint_private_access = true
     cluster_endpoint_public_access = true
-
+    cluster_addons = [
+        {
+            addon_name = "vpc-cni"
+            addon_version = "v1.10.0-eksbuild.1"
+            resolve_conflicts = "OVERWRITE"
+        },
+        {
+            addon_name = "coredns"
+            addon_version = "v1.8.4-eksbuild.1"
+            resolve_conflicts = "OVERWRITE"
+        },
+        {
+            addon_name = "kube-proxy"
+            addon_version = "v1.20.4-eksbuild.1"
+            resolve_conflicts = "OVERWRITE"
+        }
+    ]
     vpc_id = module.vpc.vpc_id
     subnet_ids = module.vpc.private_subnets
 
@@ -59,6 +75,17 @@ module "eks" {
         groups   = ["system:masters"]
     }]
 
+    node_security_group_additional_rules = {
+        ingress_allow_access_from_control_plane = {
+            type                          = "ingress"
+            protocol                      = "tcp"
+            from_port                     = 9443
+            to_port                       = 9443
+            source_cluster_security_group = true
+            description                   = "Allow access from control plane to webhook port of AWS load balancer controller"
+        }
+  }
+
     tags = {
         Environment = "staging"
     }
@@ -68,11 +95,11 @@ module "eks" {
 
 }
 
-data "aws_eks_cluster" "cluster" {
+data "aws_eks_cluster" "default" {
     name = module.eks.cluster_id
 }
 
-data "aws_eks_cluster_auth" "cluster" {
+data "aws_eks_cluster_auth" "default" {
     name = module.eks.cluster_id
 }
 

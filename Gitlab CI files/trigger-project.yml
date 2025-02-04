@@ -1,0 +1,13 @@
+stages:
+  - trigger
+
+.variable_template:
+  variables:
+    test_environment: "environment variable to be change"
+
+trigger-job:
+  stage: trigger
+  extends: .variable_template
+  trigger:
+    project: "path/to/project-to-be-triggered"
+    strategy: depend

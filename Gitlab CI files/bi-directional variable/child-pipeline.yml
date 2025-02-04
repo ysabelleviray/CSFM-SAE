@@ -1,0 +1,31 @@
+stages:
+  - build
+  - trigger
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "push"'
+
+.variable_template:
+  variables:
+    test_variable1: "This pipeline is started by feature-1 pipeline"
+    test_environment: "feature-1 environment" 
+
+
+
+build-job:
+  stage: build
+  extends: .variable_template
+  script:
+    - echo "Building..."
+    - echo "Running the test_variable $test_variable1"
+    - echo "Running the test_environment $test_environment"
+
+trigger-job:
+  stage: trigger
+  variables:
+    test_variable1: "This pipeline is started by feature-1 pipeline"
+    trigger_source: "feature-1"
+  trigger:
+    project: "demo_devsecops/demo-project"
+    strategy: depend

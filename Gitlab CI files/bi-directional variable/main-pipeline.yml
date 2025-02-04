@@ -1,0 +1,30 @@
+stages:
+  - test
+  - trigger
+
+variables:
+  trigger_source: "main-pipeline"
+
+.variable_template:
+  variables:
+    test_variable1 : "This pipeline is started by main-pipeline"
+    test_environment: "backbone environment"
+
+test-job:
+  interruptible: false
+  stage: test
+  extends: .variable_template
+  script:
+    - echo "Running on $CI_PIPELINE_SOURCE"
+    - echo "Testing the test_variable $test_variable1"
+
+trigger-job:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $trigger_source == "main-pipeline"'
+
+  interruptible: true
+  stage: trigger
+  extends: .variable_template
+  trigger:
+    project: "demo_devsecops/subgroup1/feature-1"
+    strategy: depend
